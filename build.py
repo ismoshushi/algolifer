@@ -4,9 +4,9 @@ Stdlib only. Run: python3 build.py  (then chromium for PDF)
 """
 import re, html as ihtml, zipfile, os, sys, shutil
 
-SRC = os.path.expanduser("~/workspace/x-book/algolifer/算法长工自我修养.md")
-OUTDIR = os.path.expanduser("~/workspace/x-book/algolifer/dist")
 _BASE = os.path.dirname(os.path.abspath(__file__))
+SRC = os.path.join(_BASE, "算法长工自我修养.md")
+OUTDIR = os.path.join(_BASE, "dist")
 _COVER_CANDIDATES = [
     os.path.join(_BASE, "cover", "cover-D-chiptian.png"),
     os.path.expanduser("~/workspace/x-book/cover/cover-D-chiptian.png"),
