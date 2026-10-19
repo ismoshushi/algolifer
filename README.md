@@ -17,12 +17,14 @@
 
 ## 下载
 
-| 格式 | 文件 |
+| 格式 | 文件（V1 Release） |
 |---|---|
-| PDF | [算法长工自我修养-第一册-X创作者篇.pdf](dist/算法长工自我修养-第一册-X创作者篇.pdf) |
-| EPUB | [算法长工自我修养-第一册-X创作者篇.epub](dist/算法长工自我修养-第一册-X创作者篇.epub) |
-| 单文件 HTML | [算法长工自我修养-第一册-X创作者篇.html](dist/算法长工自我修养-第一册-X创作者篇.html) |
+| PDF | [算法长工自我修养-第一册-X创作者篇.pdf](https://github.com/ismoshushi/algolifer/releases/download/v1/算法长工自我修养-第一册-X创作者篇.pdf) |
+| EPUB | [算法长工自我修养-第一册-X创作者篇.epub](https://github.com/ismoshushi/algolifer/releases/download/v1/算法长工自我修养-第一册-X创作者篇.epub) |
+| 单文件 HTML | [算法长工自我修养-第一册-X创作者篇.html](https://github.com/ismoshushi/algolifer/releases/download/v1/算法长工自我修养-第一册-X创作者篇.html) |
 | Markdown 源码 | [算法长工自我修养.md](算法长工自我修养.md) |
+
+> 每次推送更新后，GitHub Actions 会自动重新构建三种格式并更新 V1 Release。
 
 ## 许可证
 
@@ -34,3 +36,10 @@
 - 使用时必须**署名**（注明原作者、出处及是否修改）；
 - 不得用于**商业目的**；
 - 改编作品须以**相同许可**发布。
+
+## 内容来源与权利声明
+
+1. 本书引用的 X 网友观点（如 @HanZhang415188 对 X 开源算法的分析、@isnail、@lixinbao_X 的实战分享）均已注明出处，引用目的为介绍与评论，符合《中华人民共和国著作权法》第二十四条关于合理使用的规定。
+2. 本书对斯坦尼斯拉夫斯基先生及其《演员的自我修养》的引用为致敬式戏仿；腰封所引语录系为本书创作的戏仿文字，并非其本人原话。
+3. 本书部分案例与数据来源于网络公开资料的收集整理，仅供学习交流。
+4. 如您认为本书内容侵犯了您的合法权益，请联系作者（X [@idsahm](https://x.com/idsahm)），我们将在核实后及时删除相关内容。

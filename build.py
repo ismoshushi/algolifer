@@ -6,7 +6,12 @@ import re, html as ihtml, zipfile, os, sys, shutil
 
 SRC = os.path.expanduser("~/workspace/x-book/algolifer/算法长工自我修养.md")
 OUTDIR = os.path.expanduser("~/workspace/x-book/algolifer/dist")
-COVER = os.path.expanduser("~/workspace/x-book/cover/cover-D-chiptian.png")
+_BASE = os.path.dirname(os.path.abspath(__file__))
+_COVER_CANDIDATES = [
+    os.path.join(_BASE, "cover", "cover-D-chiptian.png"),
+    os.path.expanduser("~/workspace/x-book/cover/cover-D-chiptian.png"),
+]
+COVER = next((p for p in _COVER_CANDIDATES if os.path.exists(p)), None)
 BASENAME = "算法长工自我修养-第一册-X创作者篇"
 
 BOOK_TITLE = "《算法长工自我修养》"
@@ -31,6 +36,11 @@ COPYRIGHT_HTML = f"""<section class="copyright-page">
 <li><strong>非商业性使用</strong>——不得以商业目的使用本作品；</li>
 <li><strong>相同方式共享</strong>——改编作品须以相同的许可协议发布。</li>
 </ul>
+<h2>内容来源与权利声明</h2>
+<p>1. 本书引用的 X 网友观点（如 @HanZhang415188 对 X 开源算法的分析、@isnail、@lixinbao_X 的实战分享）均已注明出处，引用目的为介绍与评论，符合《中华人民共和国著作权法》第二十四条关于合理使用的规定。</p>
+<p>2. 本书对斯坦尼斯拉夫斯基先生及其《演员的自我修养》的引用为致敬式戏仿；腰封所引语录系为本书创作的戏仿文字，并非其本人原话。</p>
+<p>3. 本书部分案例与数据来源于网络公开资料的收集整理，仅供学习交流。</p>
+<p>4. 如您认为本书内容侵犯了您的合法权益，请联系作者（X @idsahm），我们将在核实后及时删除相关内容。</p>
 </section>"""
 
 CSS = """
@@ -171,7 +181,9 @@ def build_epub(chapters, out_path):
     metainf = os.path.join(tmp, "META-INF")
     os.makedirs(oebps, exist_ok=True)
     os.makedirs(metainf, exist_ok=True)
-    shutil.copy(COVER, os.path.join(oebps, "cover.png"))
+    has_cover = COVER is not None
+    if has_cover:
+        shutil.copy(COVER, os.path.join(oebps, "cover.png"))
 
     spine_items, manifest_items, nav_points = [], [], []
     for idx, (title, blks) in enumerate(chapters):
@@ -192,7 +204,8 @@ def build_epub(chapters, out_path):
         spine_items.append(f'<itemref idref="ch{idx}"/>')
         nav_points.append(f'<li><a href="{fname}">{ihtml.escape(title)}</a></li>')
 
-    manifest_items.append('<item id="cover" href="cover.png" media-type="image/png"/>')
+    if has_cover:
+        manifest_items.append('<item id="cover" href="cover.png" media-type="image/png"/>')
     manifest_items.append('<item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/>')
     nav = f"""<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE html>
@@ -240,8 +253,9 @@ def main():
     blocks = md_to_blocks(md)
     chapters = split_chapters(blocks)
 
-    # single-file HTML
+    # single-file HTML (copyright page right after the title h1)
     body_html = blocks_to_html(blocks, chapter_class=True)
+    body_html = body_html.replace('</h1>', '</h1>\n' + COPYRIGHT_HTML, 1)
     html_doc = build_html(body_html, BOOK_TITLE + SUBTITLE)
     html_path = os.path.join(OUTDIR, BASENAME + ".html")
     with open(html_path, "w", encoding="utf-8") as f:

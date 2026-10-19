@@ -8,9 +8,14 @@ from fpdf import FPDF
 
 SRC = os.path.expanduser("~/workspace/x-book/algolifer/算法长工自我修养.md")
 OUTDIR = os.path.expanduser("~/workspace/x-book/algolifer/dist")
-COVER = os.path.expanduser("~/workspace/x-book/cover/cover-D-chiptian.png")
+_BASE = os.path.dirname(os.path.abspath(__file__))
+_COVER_CANDIDATES = [
+    os.path.join(_BASE, "cover", "cover-D-chiptian.png"),
+    os.path.expanduser("~/workspace/x-book/cover/cover-D-chiptian.png"),
+]
+COVER = next((p for p in _COVER_CANDIDATES if os.path.exists(p)), None)
 BASENAME = "算法长工自我修养-第一册-X创作者篇"
-FONT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts")
+FONT_DIR = os.environ.get("FONT_DIR", os.path.join(_BASE, "fonts"))
 
 class BookPDF(FPDF):
     def footer(self):
@@ -27,10 +32,11 @@ pdf.add_font("NotoSerif", "", os.path.join(FONT_DIR, "NotoSerifSC-Regular.otf"))
 pdf.add_font("NotoSerif", "B", os.path.join(FONT_DIR, "NotoSerifSC-Bold.otf"))
 pdf.set_margins(16, 16, 16)
 
-# Cover page
-pdf.add_page()
-pdf.image(COVER, x=0, y=0, w=148)
-pdf.set_xy(pdf.l_margin, pdf.t_margin)  # image() leaves cursor x stale
+# Cover page (skipped when no cover file, e.g. in CI)
+if COVER:
+    pdf.add_page()
+    pdf.image(COVER, x=0, y=0, w=148)
+    pdf.set_xy(pdf.l_margin, pdf.t_margin)  # image() leaves cursor x stale
 
 # Copyright page: strip tags from COPYRIGHT_HTML into lines
 pdf.add_page()
@@ -51,6 +57,16 @@ lines = [
     "· 署名——注明原作者（魔术士 Sahm）、原作出处及是否修改；",
     "· 非商业性使用——不得以商业目的使用本作品；",
     "· 相同方式共享——改编作品须以相同的许可协议发布。",
+    "",
+    "【内容来源与权利声明】",
+    "1. 本书引用的 X 网友观点（如 @HanZhang415188 对 X 开源算法的分析、",
+    "@isnail、@lixinbao_X 的实战分享）均已注明出处，引用目的为介绍与评论，",
+    "符合《中华人民共和国著作权法》第二十四条关于合理使用的规定。",
+    "2. 本书对斯坦尼斯拉夫斯基先生及其《演员的自我修养》的引用为致敬式戏仿；",
+    "腰封所引语录系为本书创作的戏仿文字，并非其本人原话。",
+    "3. 本书部分案例与数据来源于网络公开资料的收集整理，仅供学习交流。",
+    "4. 如您认为本书内容侵犯了您的合法权益，请联系作者（X @idsahm），",
+    "我们将在核实后及时删除相关内容。",
 ]
 for ln in lines:
     pdf.multi_cell(0, 6.5, ln, new_x="LMARGIN", new_y="NEXT")
