@@ -19,10 +19,9 @@
 
 | 格式 | 文件（V1 Release） |
 |---|---|
-| PDF | [算法长工自我修养-第一册-X创作者篇.pdf](https://github.com/ismoshushi/algolifer/releases/download/v1/算法长工自我修养-第一册-X创作者篇.pdf) |
-| EPUB | [算法长工自我修养-第一册-X创作者篇.epub](https://github.com/ismoshushi/algolifer/releases/download/v1/算法长工自我修养-第一册-X创作者篇.epub) |
-| 单文件 HTML | [算法长工自我修养-第一册-X创作者篇.html](https://github.com/ismoshushi/algolifer/releases/download/v1/算法长工自我修养-第一册-X创作者篇.html) |
-| Markdown 源码 | [算法长工自我修养.md](算法长工自我修养.md) |
+| PDF | [算法长工自我修养-第一册-X创作者篇.pdf](https://github.com/ismoshushi/algolifer/releases/download/v1/algolifer-v1.pdf) |
+| EPUB | [算法长工自我修养-第一册-X创作者篇.epub](https://github.com/ismoshushi/algolifer/releases/download/v1/algolifer-v1.epub) |
+| 单文件 HTML | [算法长工自我修养-第一册-X创作者篇.html](https://github.com/ismoshushi/algolifer/releases/download/v1/algolifer-v1.html) |
 
 > 每次推送更新后，GitHub Actions 会自动重新构建三种格式并更新 V1 Release。
 

@@ -12,7 +12,7 @@ _COVER_CANDIDATES = [
     os.path.expanduser("~/workspace/x-book/cover/cover-D-chiptian.png"),
 ]
 COVER = next((p for p in _COVER_CANDIDATES if os.path.exists(p)), None)
-BASENAME = "算法长工自我修养-第一册-X创作者篇"
+BASENAME = "algolifer-v1"
 
 BOOK_TITLE = "《算法长工自我修养》"
 SUBTITLE = "第一册·X创作者篇 ——X创作者计划：从入门到精通"
