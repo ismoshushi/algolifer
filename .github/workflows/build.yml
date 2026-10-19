@@ -1,0 +1,56 @@
+name: Build book
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '算法长工自我修养.md'
+      - 'build.py'
+      - 'build_pdf.py'
+      - '.github/workflows/build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Python deps
+        run: pip install fpdf2 fonttools
+
+      - name: Download Noto Serif CJK SC fonts
+        run: |
+          mkdir -p fonts
+          curl -sL -o fonts/NotoSerifSC-Regular.otf https://github.com/notofonts/noto-cjk/raw/main/Serif/OTF/SimplifiedChinese/NotoSerifCJKsc-Regular.otf
+          curl -sL -o fonts/NotoSerifSC-Bold.otf https://github.com/notofonts/noto-cjk/raw/main/Serif/OTF/SimplifiedChinese/NotoSerifCJKsc-Bold.otf
+          ls -la fonts/
+
+      - name: Build HTML and EPUB
+        run: python3 build.py
+
+      - name: Build PDF
+        run: python3 build_pdf.py
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: book-v1
+          path: dist/
+
+      - name: Release V1
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1
+          name: V1
+          body: |
+            《算法长工自我修养》第一册·X创作者篇
+            本作品采用 CC BY-NC-SA 4.0 许可：免费分享、改编须署名、非商业性使用、相同方式共享。
+          files: dist/*
