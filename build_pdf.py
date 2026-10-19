@@ -2,7 +2,7 @@
 """Build PDF via fpdf2. Run: python3 build_pdf.py"""
 import re, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from build import md_to_blocks, inline, COPYRIGHT_HTML, BOOK_TITLE, SUBTITLE, AUTHOR, AUTHOR_X, PUBLISHER, YEAR, LICENSE_URL, LICENSE_NAME
+from build import md_to_blocks, inline, COPYRIGHT_HTML, BOOK_TITLE, SUBTITLE, AUTHOR, AUTHOR_X, PUBLISHER, YEAR, LICENSE_URL, LICENSE_NAME, BASENAME
 
 from fpdf import FPDF
 
@@ -14,7 +14,6 @@ _COVER_CANDIDATES = [
     os.path.expanduser("~/workspace/x-book/cover/cover-D-chiptian.png"),
 ]
 COVER = next((p for p in _COVER_CANDIDATES if os.path.exists(p)), None)
-BASENAME = "算法长工自我修养-第一册-X创作者篇"
 FONT_DIR = os.environ.get("FONT_DIR", os.path.join(_BASE, "fonts"))
 
 class BookPDF(FPDF):
