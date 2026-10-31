@@ -15,6 +15,8 @@
 作者：魔术士 Sahm（X [@idsahm](https://x.com/idsahm)）
 出版：三千星火营出版
 
+在线阅读：https://ismoshushi.github.io/algolifer/
+
 ## 下载
 
 | 格式 | 文件（V1 Release） |
