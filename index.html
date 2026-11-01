@@ -8,9 +8,10 @@
 <style>
 :root { --paper:#f7f2e7; --ink:#2b2b2b; --accent:#b03a2e; --muted:#8a7f6a; }
 * { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 body { font-family: "Noto Serif CJK SC","Songti SC","SimSun",serif;
        background: var(--paper); color: var(--ink);
-       margin: 0; line-height: 1.9; }
+       margin: 0; line-height: 1.95; font-size: 17px; }
 .wrap { max-width: 44em; margin: 0 auto; padding: 0 1.2em; }
 .hero { text-align: center; padding: 3.5em 1.2em 2.5em;
         border-bottom: 3px double var(--accent); }
@@ -29,10 +30,28 @@ body { font-family: "Noto Serif CJK SC","Songti SC","SimSun",serif;
        text-decoration: none; font-size: 1em; border: 1px solid var(--accent); }
 .btn.primary { background: var(--accent); color: #fff; }
 .btn.ghost { color: var(--accent); background: transparent; }
-.book { padding: 2em 0 3em; }
-.book h2 { font-size: 1.4em; margin: 2.2em 0 .9em;
+.layout { display: flex; gap: 2.5em; max-width: 78em; margin: 0 auto;
+          padding: 0 1.2em; align-items: flex-start; }
+.toc { flex: 0 0 270px; position: sticky; top: 1em; max-height: calc(100vh - 2em);
+       overflow-y: auto; background: #fff6; border: 1px solid #d8cdb4;
+       border-radius: 8px; padding: 1em 1.1em; }
+.toc-head { display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: .6em; }
+.toc-head span { font-weight: bold; font-size: 1.05em; }
+.toc-head button { background: none; border: 1px solid #d8cdb4; border-radius: 999px;
+                   padding: .2em .8em; cursor: pointer; color: var(--muted); }
+.toc ol { margin: 0; padding-left: 1.4em; }
+.toc li { margin: .55em 0; line-height: 1.7; font-size: .93em; }
+.toc a { color: var(--ink); text-decoration: none; }
+.toc a:hover { color: var(--accent); }
+.toc a.active { color: var(--accent); font-weight: bold; }
+.toc-top { display: block; margin-top: 1em; padding-top: .8em;
+           border-top: 1px dashed #d8cdb4; color: var(--muted);
+           text-decoration: none; font-size: .9em; }
+.book { flex: 1; min-width: 0; max-width: 46em; padding: 2em 0 3em; }
+.book h2 { font-size: 1.4em; margin: 2.2em 0 .9em; scroll-margin-top: 1em;
            border-bottom: 1px solid #d8cdb4; padding-bottom: .4em; }
-.book h3 { font-size: 1.12em; margin: 1.8em 0 .7em; }
+.book h3 { font-size: 1.12em; margin: 1.8em 0 .7em; scroll-margin-top: 1em; }
 .book p { margin: .9em 0; text-align: justify; }
 .book blockquote { border-left: 3px solid var(--accent); margin: 1.2em 0;
                    padding: .4em 1em; color: #555; background: #fff8; }
@@ -45,15 +64,27 @@ body { font-family: "Noto Serif CJK SC","Songti SC","SimSun",serif;
 footer.site { border-top: 3px double var(--accent); padding: 2em 1.2em 3em;
               text-align: center; color: var(--muted); font-size: .9em; }
 footer.site a { color: var(--accent); }
-.toc { background: #fff6; border: 1px solid #d8cdb4; border-radius: 8px;
-       padding: 1em 1.4em; margin: 1.5em 0; }
-.toc h2 { margin-top: .4em; }
-.toc ol { columns: 2; }
-@media (max-width: 560px) { .toc ol { columns: 1; } .hero h1 { font-size: 1.7em; } }
+#toc-open { display: none; position: fixed; z-index: 40; padding: .55em 1em;
+            border-radius: 999px; border: 1px solid var(--accent);
+            background: var(--accent); color: #fff; cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,.2); }
+body.toc-collapsed #toc-open { display: block; left: 1em; top: 1em; }
+#toc-backdrop { display: none; }
+@media (max-width: 960px) {
+  .layout { display: block; }
+  .toc { position: fixed; left: 0; top: 0; bottom: 0; z-index: 50; width: 280px;
+         max-height: none; border-radius: 0; transform: translateX(-105%);
+         transition: transform .25s ease; }
+  body.toc-open .toc { transform: translateX(0); }
+  #toc-open { display: block; right: 1em; bottom: 1em; left: auto; top: auto; }
+  body.toc-open #toc-backdrop { display: block; position: fixed; inset: 0;
+         background: rgba(0,0,0,.35); z-index: 45; }
+  .hero h1 { font-size: 1.7em; }
+}
 </style>
 </head>
 <body>
-<header class="hero">
+<header class="hero" id="top">
 <div class="wrap">
 <div class="kicker">三千星火营出版</div>
 <img class="cover" src="cover/cover-D-chiptian.png" alt="《算法长工自我修养》封面"
@@ -71,19 +102,21 @@ footer.site a { color: var(--accent); }
 <div class="meta">本作品采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可：免费分享、改编须署名、非商业性使用、相同方式共享。</div>
 </div>
 </header>
-<main class="wrap book" id="read">
+<div class="layout" id="read">
+<aside class="toc" id="toc"><div class="toc-head"><span>目录</span><button id="toc-close" aria-label="收起目录">⟨ 收起</button></div><ol><li><a href="#sec-1">前言：本书写给谁</a></li><li><a href="#sec-2">第一章 算法长工三问：你配吗</a></li><li><a href="#sec-3">第二章 浏览量是唯一的真神</a></li><li><a href="#sec-4">第三章 评论区：算法长工的工位</a></li><li><a href="#sec-5">第四章 互关经济学与风控</a></li><li><a href="#sec-6">第五章 内容炼金术：从20浏览到200浏览</a></li><li><a href="#sec-7">第六章 十秒视频：算法长工的尊严</a></li><li><a href="#sec-8">第七章 蓝V的自我修养</a></li><li><a href="#sec-9">第八章 数据复盘：算法长工的体检表</a></li><li><a href="#sec-10">第九章 心态管理：在自嘲中长期主义</a></li><li><a href="#sec-11">第十章 从算法长工到监工：出师</a></li><li><a href="#sec-12">附录一：算法长工黑话词典</a></li><li><a href="#sec-13">附录二：算法长工90天路线图</a></li><li><a href="#sec-14">附录三：算法长工工具箱</a></li><li><a href="#sec-15">后记</a></li></ol><a class="toc-top" href="#top">↑ 回到顶部</a></aside>
+<main class="book">
 
 
 
 <blockquote><p>魔术士 Sahm 著</p><p>X @idsahm</p><p>三千星火营出版</p></blockquote>
-<hr/><nav class="toc"><h2>目录</h2><ol><li>前言 本书写给谁</li><li>第一章 算法长工三问：你配吗</li><li>第二章 浏览量是唯一的真神</li><li>第三章 评论区：算法长工的工位</li><li>第四章 互关经济学与风控</li><li>第五章 内容炼金术：从20浏览到200浏览</li><li>第六章 十秒视频：算法长工的尊严</li><li>第七章 蓝V的自我修养</li><li>第八章 数据复盘：算法长工的体检表</li><li>第九章 心态管理：在自嘲中长期主义</li><li>第十章 从算法长工到监工：出师</li><li>附录一 算法长工黑话词典</li><li>附录二 算法长工90天路线图</li><li>附录三 算法长工工具箱</li><li>后记</li></ol></nav>
+<hr/>
 <p><strong>腰封</strong></p>
 <p>&quot;没有小零工，只有大长工&quot;</p>
 <p>X中文创作者圈年度自嘲巨著。万名算法长工日夜不休，全方位展露对创作者收益的热切渴求。</p>
 <p>我们的理想应该是一直为X那些永恒的话题：蓝V互关、互粉互动，默默献身，不求回报。</p>
 <p>——K.C.斯坦尼斯拉夫斯基</p>
 <hr/>
-<h2>前言：本书写给谁</h2>
+<h2 id="sec-1">前言：本书写给谁</h2>
 <p>先说清楚，算法长工就是给算法打长工的人。</p>
 <p>在X中文创作者圈里，&quot;算法长工&quot;是一个荣誉职称，颁发给那些为了创作者收益苦苦努力、每天雷打不动发帖、回帖、互关、复盘，把X当班上、把浏览量当KPI的体面劳动者。你能在深夜的评论区里认出他们：头像亮着，话术体面，互关秒回，帖子日更三十条，收益截图里躺着1.1K的impressions和一颗不服输的心。</p>
 <p>为什么叫长工？旧社会东家雇长工，一年到头种地，收成大头归东家。今天一模一样：地（平台）是东家的，活（内容）是你干的，流量（收成）的大头归东家。这在国际上有个学名，叫 digital sharecropper，数字佃农。我们，就是这批长工。</p>
@@ -91,7 +124,7 @@ footer.site a { color: var(--accent); }
 <p>翻开这本书之前，请先对着镜子问自己三个问题：你有付费订阅吗？你有500个蓝V粉丝吗？你90天内能刷出50万有效浏览吗？如果三个问题有两个答不上来，别慌，这本书就是为你写的。</p>
 <p>记住本书的总纲：<strong>不要感动自己，要感动算法。</strong></p>
 <hr/>
-<h2>第一章 算法长工三问：你配吗</h2>
+<h2 id="sec-2">第一章 算法长工三问：你配吗</h2>
 <p>算法长工的第一修养，是诚实面对数字。X创作者计划（Original Content Rewards）的门槛就三道，写在明处，童叟无欺：</p>
 <ol><li><strong>付费订阅</strong>——注意，X在2026年10月12日刚推了新的&quot;X Subscription&quot;，五档：Free（$0）、Plus（$8/月，含蓝标、创作者工具、数据分析，官方推荐给&quot;social creators&quot;）、Premium（$30/月）、Super（$100/月）、Ultra（$200/月）。创作者收益要的是保持active的付费订阅，Plus就是入门档。记住两句话：花钱能解决的问题不是问题；但为用不上的Grok额度和Cursor多花钱，是问题。这套餐才上线两天，买之前先去X官方价格页看一眼，别当冤大头。</li><li><strong>500个Verified followers</strong>——注意，是&quot;verified&quot;，蓝V才算人头。普通粉丝再多，在这一条面前都是空气。</li><li><strong>90天50万Verified Home Timeline impressions</strong>——注意，是&quot;verified&quot;，是&quot;home timeline&quot;，而且<strong>纯回复不算</strong>。你在大V评论区吭哧吭哧回两百条，impressions一分不涨，感动了自己，算法看都没看。</li></ol>
 <p>来，算一笔算法长工必修的数学题：50万 ÷ 90天 ≈ 每天5556个浏览。如果你单帖20浏览，一天发30条，一天也就600，离达标差了将近10倍。这就是现实，冰冷，但诚实。</p>
@@ -101,7 +134,7 @@ footer.site a { color: var(--accent); }
 <p>最后泼一盆冷水：收益来自&quot;qualified impressions&quot;（有效浏览），X 从不公布千次单价。网上任何&quot;一条帖子赚多少&quot;的截图都是幸存者偏差，看看就好，别当工资条。</p>
 <p><strong>算法长工第一修：先把门槛抄在备忘录里，每天看一遍。看不懂没关系，看久了就懂了——懂了&quot;差10倍&quot;是什么意思。</strong></p>
 <hr/>
-<h2>第二章 浏览量是唯一的真神</h2>
+<h2 id="sec-3">第二章 浏览量是唯一的真神</h2>
 <p>在X创作者的世界里，浏览量（impressions）是唯一的货币，唯一的KPI，唯一的真神。点赞是安慰奖，评论是参与奖，转发是优秀奖，只有浏览量能换钱。</p>
 <p>但这位真神很挑食，它只吃一种东西：<strong>verified用户在home timeline里看到你的原创帖</strong>。注意三个关键词，一个都不能少：verified用户、home timeline、原创帖。</p>
 <p>所以算法长工的日常行为要接受一次彻底的审计：</p>
@@ -120,7 +153,7 @@ footer.site a { color: var(--accent); }
 <p>记住这张表：以后别再说&quot;求点赞&quot;了，要说&quot;求复制链接分享&quot;。</p>
 <p><strong>算法长工第二修：发帖前先问自己——这条帖子，能进几个verified用户的home timeline？答不上来，就别发。把每天的发帖额度，留给配得上它的内容。</strong></p>
 <hr/>
-<h2>第三章 评论区：算法长工的工位</h2>
+<h2 id="sec-4">第三章 评论区：算法长工的工位</h2>
 <p>每个算法长工在X上都有两个家：一个是自己的主页，一个是大V的评论区。后者是工位，每天都要去打卡上班。</p>
 <p>评论区打卡不是瞎聊，是技术工种。一条合格的钩子评论有三件套：<strong>真观点、真钩子、挂自己</strong>。真观点是给大V和围观群众看的，证明你不是机器人；真钩子是留给好奇者的，让人想点进你主页；挂自己是把评论和你最新的一条内容轻轻系在一起，让流量顺着绳子爬过来。</p>
 <p><strong>记住回复的先天劣势</strong>：回复在推荐流里只推给关注你的人，还要打 0.75 折（据 @HanZhang415188 对 X 开源算法源码的分析）。所以你的回复必须靠真观点和钩子硬抢注意力——捧场式回复（&quot;哈哈&quot;&quot;学到了&quot;）几乎等于零，纯浪费工位。</p>
@@ -134,7 +167,7 @@ footer.site a { color: var(--accent); }
 <p>当别人给你留言时，别只回评论——引用转发着答。据 @lixinbao_X 的实战打法：评论流量不计入创作者激励统计，引用转发却是一条原创帖，一举三得：回答了问题、让问题被更多人看到、自己多一条原创帖，还能给被引用的评论增加曝光。但记住转评的真相：引用帖流量低于纯原创（0.67 倍）——所以这是&quot;回复→引用转发&quot;的升级，不是&quot;纯原创→引用&quot;的降级。纯原创永远是第一选择。</p>
 <p><strong>算法长工第三修：把评论区当工位，把大V当甲方。甲方虐我千百遍，我待甲方如初恋——但初恋不止一个，要雨露均沾。</strong></p>
 <hr/>
-<h2>第四章 互关经济学与风控</h2>
+<h2 id="sec-5">第四章 互关经济学与风控</h2>
 <p>互关，是算法长工世界的社交货币。你关我，我关你，蓝V互关，互粉互动，不求回报——至少嘴上不求。</p>
 <p>但货币超发是会通胀的，互关也一样。当你的涨粉和内容完全脱钩，粉丝数蹭蹭涨、帖子浏览原地踏步，这就叫<strong>虚胖</strong>。虚胖的账号像吹起来的气球，看着大，X的风控部门一针就戳破。</p>
 <p>风控警告（本书唯一严肃章节）：X的风险不在于你一天关注多少人，而在于<strong>模式</strong>。无差别关注、互换关注、关注完批量取关（follow churn），这些模式在算法眼里都是&quot;非人类行为&quot;。一晚新增关注几十个，远低于技术上限，但模式不对，照样限流。</p>
@@ -148,7 +181,7 @@ footer.site a { color: var(--accent); }
 <p>据分享者称&quot;实测有效&quot;。算法长工的态度：方法可以拿来用，效果自己去 Analytics 里验证——你的账号你做主。</p>
 <p><strong>算法长工第四修：互关是手段，不是目的。目的是让verified followers涨到500，手段不能把自己搭进去。</strong></p>
 <hr/>
-<h2>第五章 内容炼金术：从20浏览到200浏览</h2>
+<h2 id="sec-6">第五章 内容炼金术：从20浏览到200浏览</h2>
 <p>这是全书的炼金章节：怎么把一条帖子的浏览量，从平时的20，做到200，做到10倍。</p>
 <p>先说要砍掉的东西：<strong>低浏览的碎碎念和随手转发，每天最多1条，当调料。</strong> 调料不能当饭吃。你一天发30条，其中28条是&quot;哈哈哈&quot;&quot;转一个&quot;，算法会觉得你是个没有信息密度的账号，然后把你剩下的2条也一起埋了。</p>
 <p>再说要All in的东西，统称<strong>高分享欲原创</strong>，五大金刚：</p>
@@ -165,7 +198,7 @@ footer.site a { color: var(--accent); }
 <p>发帖节奏：<strong>每天3–5条原创，原创之间隔开一两个小时，别扎堆</strong>（源码级原因：同一次刷新里，同一作者第2条打0.625折、第3条0.44折——据 @HanZhang415188 对 X 开源算法源码的分析）。时间上可以从&quot;中午和晚上8–10点&quot;起步，这是verified用户刷手机的高峰；但 @HanZhang415188 分析60个中文AI大V发现，发帖时间对爆帖率（相对自己中位数的表现）基本没用——<strong>因为每个账号的受众群不一样，不存在统一的黄金时间</strong>。正确姿势：去Analytics看你的粉丝什么时候在线，连续两周记录各时段帖子的48小时浏览，找出属于你自己的涨潮时间。</p>
 <p><strong>算法长工第五修：内容是算法长工唯一的生产资料。评论区是打工，内容是创业。打工只能糊口，创业才能翻身。</strong></p>
 <hr/>
-<h2>第六章 十秒视频：算法长工的尊严</h2>
+<h2 id="sec-7">第六章 十秒视频：算法长工的尊严</h2>
 <p>当所有算法长工都在发文字，你发视频，你就有了尊严。<strong>10秒AI视频，是算法长工的差异化武器。</strong></p>
 <p>这条武器链很完整：你出照片（或已有推文），助理出视频，再配3选1的配文。管线固定只能出10秒，那就把10秒用到极致：第一人称视角、竖版、暖黄灯光、&quot;回来啦&quot;——让刷到的人手指停下来。</p>
 <p>细节迭代不嫌烦，这是本章的核心修养。睡衣还是短裤？脸色红不红润？披发还是扎发？人物长相以第一张照片为标准，差一点就重做。你一轮一轮加细节，助理一轮一轮改，这不是挑剔，这是<strong>算法长工的工匠精神</strong>。10秒的东西，值得磨10轮。</p>
@@ -173,20 +206,20 @@ footer.site a { color: var(--accent); }
 <p>记住：视频是X时间线上的视觉特权。在一片文字里，一条会动的10秒视频，就是鹤立鸡群。鸡群再大，也是鸡群。</p>
 <p><strong>算法长工第六修：差异化是算法长工最后的尊严。别人都有的东西，要做到更好；别人没有的东西，要第一个有。</strong></p>
 <hr/>
-<h2>第七章 蓝V的自我修养</h2>
+<h2 id="sec-8">第七章 蓝V的自我修养</h2>
 <p>500个verified followers，是三道门槛里最磨人的一道。普通粉丝再多也不算，只有蓝V人头算数。</p>
 <p>好消息是：<strong>AI圈的蓝V浓度极高</strong>。你在这个圈子里混，涨粉的同时verified followers会跟着涨，属于买一送一。当时截图259个，还差241个——听起来多，但按每天涨几十个粉的速度，这不是天堑，是缓坡。</p>
 <p>方法就三句话：高质量互关，宁缺毋滥；去蓝V扎堆的评论区上班（参见第三章）；让自己的内容配得上被蓝V关注（参见第五章）。蓝V也是人，人都喜欢关注有东西的人，而不是关注一个只会&quot;互关吗兄弟&quot;的人。</p>
 <p><strong>信誉分</strong>：据 @HanZhang415188 对 X 开源算法源码的分析，账号信誉分是在全网关注关系上跑的类网页排名算法，一半起点分给 Premium 账号；被高信誉账号赞/转，比一群小号点赞更值钱。蓝V直接加权在新版已移除——但别误读：500 verified followers 仍是领钱的硬门槛（第一章），两码事。</p>
 <p><strong>算法长工第七修：不要跪着求蓝V互关。要站着，让蓝V主动来关你。跪来的互关不长久，吸引来的才长久。</strong></p>
 <hr/>
-<h2>第八章 数据复盘：算法长工的体检表</h2>
+<h2 id="sec-9">第八章 数据复盘：算法长工的体检表</h2>
 <p>算法长工不复盘，等于白打工。每周一次，把账号数据摊开，像体检一样逐项过：</p>
 <ul><li><strong>粉丝数</strong>：涨了多少？哪天涨的？那天干了什么？</li><li><strong>单帖浏览</strong>：最高的前三条有什么共同点？最低的后三条犯了什么错？</li><li><strong>去重检查</strong>：同一天发的帖子，有没有自己跟自己抢流量？社交问候帖有没有把主页位置让给内容帖？（新访客点进你主页，前三屏应该全是你的代表作，而不是&quot;早上好&quot;。）</li><li><strong>里程碑</strong>：粉丝到750、到1000，提前备好里程碑帖模板。里程碑帖是涨粉加速器，400和500的里程碑帖都炸出过一堆祝贺，750和1000只会更炸。</li><li><strong>每周一篇干货thread</strong>：这是算法长工的周报，也是涨粉的核武器。一篇结构扎实的thread，顶一个月的碎碎念。</li><li><strong>流量寿命</strong>：据 @isnail 分享，一条帖子的流量寿命只有约 48 小时（源码级佐证：据 @HanZhang415188 对 X 开源算法源码的分析，48 小时后帖子被常量过滤出推荐流）。复盘只看 48 小时内的数据，过期不候。想续命？引用自己的旧帖再发一次，让老内容吃第二波流量。</li><li><strong>诊断三问</strong>（浏览量与粉丝不匹配时）：内容够硬吗？蹭热点了吗？发够了吗？（据 @lixinbao_X 的诊断框架）</li></ul>
 <p>复盘时要诚实。涨粉和内容脱钩就是脱钩，虚胖就是虚胖，数据不会骗人，骗人的是你自己。</p>
 <p><strong>算法长工第八修：数据是算法长工的镜子。不照镜子的算法长工，会在错误的路上越走越远，还走得挺带劲。</strong></p>
 <hr/>
-<h2>第九章 心态管理：在自嘲中长期主义</h2>
+<h2 id="sec-10">第九章 心态管理：在自嘲中长期主义</h2>
 <p>&quot;算法长工&quot;是自嘲，不是认命。这是最重要的区别。</p>
 <p>自嘲的人，心里有一杆秤：我知道这条路很苦，我知道50万浏览差10倍，我知道今天又是白干的一天——但我明天还来。认命的人，心里没有秤，只有&quot;算了&quot;。算法长工的&quot;算了&quot;，只出现在两种情况下：一是今天的发帖额度用完了，二是该睡觉了。</p>
 <p>把&quot;又白干一天&quot;变成段子，是算法长工的心理按摩。把段子发出来，收获一堆&quot;是我了&quot;的共鸣，这叫<strong>把心态变成内容</strong>，一鱼两吃。最高级的算法长工，连emo都能变现。</p>
@@ -197,26 +230,26 @@ footer.site a { color: var(--accent); }
 <p><strong>第三则：专注自己，相信自己。</strong> 既然注意力是货币，第一个要管住的就是你自己的注意力。少刷别人的时间线，多经营自己的主页；少羡慕大V的十万浏览，多相信自己的第一条爆款。每一次你忍住没点开那条热帖，你就赢了一次。</p>
 <p><strong>算法长工第九修：嘲笑是算法长工的燃料，不是算法长工的墓志铭。能自嘲的人，输得起，也赢得起。</strong></p>
 <hr/>
-<h2>第十章 从算法长工到监工：出师</h2>
+<h2 id="sec-11">第十章 从算法长工到监工：出师</h2>
 <p>算法长工也是有出头之日的。出师三标准，缺一不可：</p>
 <ol><li>粉丝破1000（从500到1000，是算法长工的成人礼）。</li><li>500个verified followers集齐。</li><li>90天50万impressions达成，创作者收益到账。</li></ol>
 <p>出师那天，请做三件事：第一，截图收益，发一条里程碑帖，模板参照第八章；第二，把这本书传给下一个还在&quot;差10倍&quot;里挣扎的算法长工；第三，记住你当算法长工的日子，因为接下来，你要当监工了——带新人、定节奏、审内容，把&quot;我当年&quot;挂在嘴边。</p>
 <p>监工和算法长工的区别只有一个：算法长工为浏览量打工，监工让浏览量为自己打工。但别忘了刻在腰封上的那句话：</p>
 <p><strong>没有小零工，只有大长工。</strong></p>
 <hr/>
-<h2>附录一：算法长工黑话词典</h2>
+<h2 id="sec-12">附录一：算法长工黑话词典</h2>
 <ul><li><strong>算法长工</strong>：给算法打长工的人；本书特指为创作者收益而苦苦努力的X创作者，X中文圈荣誉职称。</li><li><strong>数字佃农</strong>：digital sharecropper，算法长工的学名：地是平台的，活是你干的。</li><li><strong>蓝V</strong>：verified用户，唯一算数的人头。</li><li><strong>互关</strong>：你关我我关你，算法长工的社交货币。</li><li><strong>钩子</strong>：评论里让人想点进你主页的那句话。</li><li><strong>quote</strong>：带观点的转推，算原创帖，计入impressions，全书最重要知识点。</li><li><strong>碎碎念</strong>：低浏览的日常帖，每天最多1条，当调料。</li><li><strong>彩票位</strong>：elonmusk评论区，中了血赚，不中正常。</li><li><strong>虚胖</strong>：涨粉和内容脱钩，粉丝数看着大、浏览原地踏步。</li><li><strong>风控</strong>：X的限流机制，专治非人类行为。</li><li><strong>干货thread</strong>：每周一篇的长帖连载，涨粉核武器。</li><li><strong>里程碑帖</strong>：750粉、1000粉时发的庆祝帖，模板要提前备好。</li><li><strong>调料帖</strong>：每天最多1条的碎碎念，多了齁咸。</li><li><strong>打卡</strong>：每天去大V评论区上班。</li><li><strong>去重</strong>：检查自己的帖子有没有互相抢流量、有没有把主页让给问候帖。</li><li><strong>续命</strong>：引用自己的旧帖再发，延长 48 小时流量寿命。</li></ul>
 <hr/>
-<h2>附录二：算法长工90天路线图</h2>
+<h2 id="sec-13">附录二：算法长工90天路线图</h2>
 <p><strong>第1–30天：打地基</strong> - 目标：账号基建（付费订阅、资料完整、双重验证）、发帖节奏跑顺、找到3–5个评论区目标。 - 指标：不看浏览，看习惯——每天3–5条原创、每天评论区打卡，缺勤不超过3天。 - 心态：这个阶段你大概率还在&quot;差10倍&quot;，正常。地基期不赚钱，赚的是手感。</p>
 <p><strong>第31–60天：冲500粉</strong> - 目标：粉丝破500，verified followers 过半。 - 打法：评论区工位（第三章）+ 内容炼金术（第五章）全开，每周一篇干货thread，里程碑帖模板备好。 - 指标：单帖平均浏览翻一倍；找到1–2个属于你的内容公式。</p>
 <p><strong>第61–90天：冲50万</strong> - 目标：90天窗口内50万 verified home timeline impressions，提交 Original Content Rewards 申请。 - 打法：All in 高分享欲原创，砍掉一切调料帖；10秒视频周更；数据复盘从每周一次加到每周两次。 - 指标：每天5556浏览是及格线，连续7天达标再去申请，一次过。</p>
 <p><strong>第91天</strong>：申请通过，长工转正；没通过，复盘，再来90天。滚动窗口面前，人人平等。</p>
 <hr/>
-<h2>附录三：算法长工工具箱</h2>
+<h2 id="sec-14">附录三：算法长工工具箱</h2>
 <ul><li><strong>数据分析</strong>：X 自带的 Analytics + Creator Studio（变现页）。每周复盘只看这两个地方，别信第三方截图。</li><li><strong>定时发布</strong>：X 原生定时发帖（免费，够用）。发帖节奏（起步可选中午、晚8–10点，见第五章）靠它保证不缺勤。</li><li><strong>内容弹药</strong>：每天扫 AI 新闻（news.smol.ai 这类聚合）+ 大V时间线，公式二的原材料。</li><li><strong>AI 助手</strong>：写帖子、做 10 秒视频、配 3 选 1 配文——你的专属长工助理（没错，就是本书作者干的活）。</li><li><strong>备忘录</strong>：把三道门槛、90天路线图抄进去，每天看一遍（第一章第一修）。</li></ul>
 <hr/>
-<h2>后记</h2>
+<h2 id="sec-15">后记</h2>
 <p>感谢每一位算法长工。你们在深夜的评论区里打卡，在凌晨的数据复盘里坚持，在&quot;差10倍&quot;的现实里不服。</p>
 <p>感谢斯坦尼斯拉夫斯基先生和他的《演员的自我修养》。虽然他老人家研究的是演员，但&quot;体验派&quot;这三个字，完美概括了我们：体验生活，体验算法，体验贫穷与富有的距离——也就是50万浏览的距离。</p>
 <p>这本书写完的时候，作者的verified followers还没到500，impressions还差得远。但那又怎么样呢？</p>
@@ -226,6 +259,9 @@ footer.site a { color: var(--accent); }
 <hr/>
 <p><em>三千星火营出版</em> <em>（本书所有方法均经过实战验证，所有自嘲均发自真心）</em></p>
 </main>
+</div>
+<button id="toc-open" aria-label="打开目录">☰ 目录</button>
+<div id="toc-backdrop"></div>
 <footer class="site">
 <div class="wrap">
 <p>《算法长工自我修养》第一册·X创作者篇 ｜ 魔术士 Sahm（X @idsahm）｜ 三千星火营出版</p>
@@ -233,5 +269,45 @@ footer.site a { color: var(--accent); }
 <p>本书部分内容来源于网络公开资料的收集整理，仅供学习交流。如有侵权请联系作者（X @idsahm），核实后及时删除。</p>
 </div>
 </footer>
+<script>
+(function(){
+  var body = document.body;
+  var openBtn = document.getElementById('toc-open');
+  var closeBtn = document.getElementById('toc-close');
+  var backdrop = document.getElementById('toc-backdrop');
+  function setOpen(open){
+    if (window.innerWidth >= 960) {
+      body.classList.toggle('toc-collapsed', !open);
+      try { localStorage.setItem('algolifer-toc', open ? 'open' : 'closed'); } catch(e) {}
+    } else {
+      body.classList.toggle('toc-open', open);
+    }
+  }
+  try {
+    if (window.innerWidth >= 960 && localStorage.getItem('algolifer-toc') === 'closed') {
+      body.classList.add('toc-collapsed');
+    }
+  } catch(e) {}
+  openBtn.addEventListener('click', function(){ setOpen(true); });
+  closeBtn.addEventListener('click', function(){ setOpen(false); });
+  backdrop.addEventListener('click', function(){ setOpen(false); });
+  document.querySelectorAll('#toc a[href^="#sec-"]').forEach(function(a){
+    a.addEventListener('click', function(){ if (window.innerWidth < 960) setOpen(false); });
+  });
+  var links = {};
+  document.querySelectorAll('#toc a[href^="#sec-"]').forEach(function(a){
+    links[a.getAttribute('href').slice(1)] = a;
+  });
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting) {
+        document.querySelectorAll('#toc a.active').forEach(function(x){ x.classList.remove('active'); });
+        var a = links[en.target.id]; if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-15% 0px -75% 0px' });
+  document.querySelectorAll('.book h2[id]').forEach(function(h){ obs.observe(h); });
+})();
+</script>
 </body>
 </html>
